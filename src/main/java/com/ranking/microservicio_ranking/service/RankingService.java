@@ -1,11 +1,15 @@
 package com.ranking.microservicio_ranking.service;
 
+import com.ranking.microservicio_ranking.client.AuditoriaClient;
+import com.ranking.microservicio_ranking.dto.AuditoriaRequestDTO;
+import com.ranking.microservicio_ranking.dto.AuditoriaResponseDTO;
 import com.ranking.microservicio_ranking.dto.RankingResponseDTO;
 import com.ranking.microservicio_ranking.model.Ranking;
 import com.ranking.microservicio_ranking.repository.RankingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,6 +19,7 @@ import java.util.stream.Collectors;
 public class RankingService {
 
     private final RankingRepository rankingRepository;
+    private final AuditoriaClient auditoriaClient;
 
     public RankingResponseDTO mapToDTO(Ranking ranking){
         return new RankingResponseDTO(
@@ -36,6 +41,15 @@ public class RankingService {
 
     public void guardarRanking(Ranking ranking){
         rankingRepository.save(ranking);
+    }
+
+    public void generarAuditoria(String detalle){
+        AuditoriaRequestDTO dto = new AuditoriaRequestDTO();
+        LocalDate ahora = LocalDate.now();
+        dto.setDetalle(detalle);
+        dto.setFecha(ahora);
+
+        AuditoriaResponseDTO respuesta = auditoriaClient.generarAuditoria(dto);
     }
 
 }
