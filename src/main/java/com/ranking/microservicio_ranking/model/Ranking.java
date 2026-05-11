@@ -1,27 +1,26 @@
 package com.ranking.microservicio_ranking.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Entity
+@Table(name = "ranking")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Ranking {
 
-    @NotNull(message = "El id no puede ser nulo")
-    @Positive(message = "El id tiene que ser mayor a 0")
+    @Column(nullable = false, length = 5)
     private Long idUsuario;
 
-    @NotBlank(message = "El nombre no puede ser nulo ni vacio")
+    @Column(nullable = false, length = 100)
     private String nombre;
 
-    @NotNull(message = "El puntaje no puede ser nulo")
-    @PositiveOrZero(message = "El puntaje no puede ser negativo")
+    @Column(nullable = false, length = 6)
     private Long puntaje;
 
 
