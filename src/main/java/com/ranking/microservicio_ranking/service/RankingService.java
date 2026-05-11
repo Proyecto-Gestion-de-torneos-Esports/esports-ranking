@@ -2,27 +2,28 @@ package com.ranking.microservicio_ranking.service;
 
 import com.ranking.microservicio_ranking.model.Ranking;
 import com.ranking.microservicio_ranking.repository.RankingRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class RankingService {
 
-    @Autowired
-    private RankingRepository rankingRepository;
+    private final RankingRepository rankingRepository;
 
     public List<Ranking> obtenerTodo(){
-        return rankingRepository.obtenerTodo();
+        return rankingRepository.findAll();
     }
 
-    public Ranking buscarPorId(Long id){
-        return rankingRepository.buscarPorId(id);
+    public Optional<Ranking> buscarPorId(Long id){
+        return rankingRepository.findById(id);
     }
 
     public void guardarRanking(Ranking ranking){
-        rankingRepository.guardarRanking(ranking);
+        rankingRepository.save(ranking);
     }
 
 }
