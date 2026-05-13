@@ -1,7 +1,6 @@
 package com.ranking.microservicio_ranking.controller;
 
 import com.ranking.microservicio_ranking.dto.RankingResponseDTO;
-import com.ranking.microservicio_ranking.model.Ranking;
 import com.ranking.microservicio_ranking.service.RankingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +25,13 @@ public class RankingController {
         return rankingService.buscarPorId(id);
     }
 
-    @PostMapping
-    public void guardarRanking(@RequestBody Ranking ranking){
-        rankingService.guardarRanking(ranking);
+    @PostMapping("/{id}")
+    public void guardarRanking(@PathVariable Long id){
+        rankingService.guardarRanking(id);
     }
 
+    @GetMapping("/puntaje")
+    public List<RankingResponseDTO> listarOrdenado(){
+        return rankingService.rankingOrdenadPorPuntaje();
+    }
 }

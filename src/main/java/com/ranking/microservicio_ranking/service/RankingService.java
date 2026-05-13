@@ -1,8 +1,9 @@
 package com.ranking.microservicio_ranking.service;
 
 import com.ranking.microservicio_ranking.client.AuditoriaClient;
+import com.ranking.microservicio_ranking.client.EstadisticaClient;
 import com.ranking.microservicio_ranking.dto.AuditoriaRequestDTO;
-import com.ranking.microservicio_ranking.dto.AuditoriaResponseDTO;
+import com.ranking.microservicio_ranking.dto.EstadisticaResponseDTO;
 import com.ranking.microservicio_ranking.dto.RankingResponseDTO;
 import com.ranking.microservicio_ranking.exception.RankingNotFoundException;
 import com.ranking.microservicio_ranking.model.Ranking;
@@ -23,6 +24,7 @@ public class RankingService {
 
     private final RankingRepository rankingRepository;
     private final AuditoriaClient auditoriaClient;
+    private final EstadisticaClient estadisticaClient;
 
     public RankingResponseDTO mapToDTO(Ranking ranking){
         return new RankingResponseDTO(
@@ -46,19 +48,44 @@ public class RankingService {
         throw new RankingNotFoundException("El ranking con id "+id+" no fue encontrado");
     }
 
-    public void guardarRanking(Ranking ranking){
-        rankingRepository.save(ranking);
-        log.info("Ranking guardado con exito!");
-        generarAuditoria("Ranking creado");
-    }
-
     public void generarAuditoria(String detalle){
         AuditoriaRequestDTO dto = new AuditoriaRequestDTO();
         LocalDate ahora = LocalDate.now();
         dto.setDetalle(detalle);
         dto.setFecha(ahora);
+        auditoriaClient.generarAuditoria(dto);
+        log.info("Auditoria generada");
+    }
 
-        AuditoriaResponseDTO respuesta = auditoriaClient.generarAuditoria(dto);
+    public void guardarRanking(Long idUsuario){
+        List<EstadisticaResponseDTO> estadisticas = estadisticaClient.obtenerTodos();
+        Ranking ranking = new Ranking();
+        Long puntaje = 0L;
+        for(EstadisticaResponseDTO estadistica: estadisticas){
+            if(estadistica.getUsuarioId().equals(idUsuario)){
+                ranking.setIdUsuario(estadistica.getUsuarioId());
+                ranking.setNombre("Mish");
+                if(estadistica.getMetrica().equalsIgnoreCase("Goles") || estadistica.getMetrica().equalsIgnoreCase("Kills")){
+                    puntaje+=(estadistica.getValor()*5L);
+                }else if(estadistica.getMetrica().equalsIgnoreCase("Asistencias")){
+                    puntaje+=(estadistica.getValor()*3L);
+                }else if(estadistica.getMetrica().equalsIgnoreCase("Muertes")){
+                    puntaje-=(estadistica.getValor());
+                }
+
+                ranking.setPuntaje(puntaje);
+            }
+        }
+        rankingRepository.save(ranking);
+        log.info("Ranking generado con exito!");
+        generarAuditoria("Se agrego una fila en ranking");
+    }
+
+    public List<RankingResponseDTO> rankingOrdenadPorPuntaje(){
+        return rankingRepository.ordenarPuntajeMayoraMenor()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
 }
