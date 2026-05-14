@@ -32,6 +32,6 @@ public class RankingController {
 
     @GetMapping("/puntaje")
     public List<RankingResponseDTO> listarOrdenado(){
-        return rankingService.rankingOrdenadPorPuntaje();
+        return rankingService.rankingOrdenaPorPuntaje();
     }
 }

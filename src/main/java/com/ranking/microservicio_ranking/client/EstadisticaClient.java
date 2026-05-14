@@ -12,6 +12,4 @@ public interface EstadisticaClient {
     @GetMapping()
     public List<EstadisticaResponseDTO> obtenerTodos();
 
-
-
 }

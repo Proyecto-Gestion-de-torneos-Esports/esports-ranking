@@ -2,6 +2,7 @@ package com.ranking.microservicio_ranking.service;
 
 import com.ranking.microservicio_ranking.client.AuditoriaClient;
 import com.ranking.microservicio_ranking.client.EstadisticaClient;
+import com.ranking.microservicio_ranking.client.UsuarioClient;
 import com.ranking.microservicio_ranking.dto.AuditoriaRequestDTO;
 import com.ranking.microservicio_ranking.dto.EstadisticaResponseDTO;
 import com.ranking.microservicio_ranking.dto.RankingResponseDTO;
@@ -25,6 +26,7 @@ public class RankingService {
     private final RankingRepository rankingRepository;
     private final AuditoriaClient auditoriaClient;
     private final EstadisticaClient estadisticaClient;
+    private final UsuarioClient usuarioClient;
 
     public RankingResponseDTO mapToDTO(Ranking ranking){
         return new RankingResponseDTO(
@@ -81,7 +83,7 @@ public class RankingService {
         generarAuditoria("Se agrego una fila en ranking");
     }
 
-    public List<RankingResponseDTO> rankingOrdenadPorPuntaje(){
+    public List<RankingResponseDTO> rankingOrdenaPorPuntaje(){
         return rankingRepository.ordenarPuntajeMayoraMenor()
                 .stream()
                 .map(this::mapToDTO)
