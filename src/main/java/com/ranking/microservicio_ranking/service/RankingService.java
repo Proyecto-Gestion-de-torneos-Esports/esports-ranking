@@ -6,6 +6,7 @@ import com.ranking.microservicio_ranking.client.UsuarioClient;
 import com.ranking.microservicio_ranking.dto.AuditoriaRequestDTO;
 import com.ranking.microservicio_ranking.dto.EstadisticaResponseDTO;
 import com.ranking.microservicio_ranking.dto.RankingResponseDTO;
+import com.ranking.microservicio_ranking.dto.UsuarioResponseDTO;
 import com.ranking.microservicio_ranking.exception.RankingNotFoundException;
 import com.ranking.microservicio_ranking.model.Ranking;
 import com.ranking.microservicio_ranking.repository.RankingRepository;
@@ -50,23 +51,17 @@ public class RankingService {
         throw new RankingNotFoundException("El ranking con id "+id+" no fue encontrado");
     }
 
-    public void generarAuditoria(String detalle){
-        AuditoriaRequestDTO dto = new AuditoriaRequestDTO();
-        LocalDate ahora = LocalDate.now();
-        dto.setDetalle(detalle);
-        dto.setFecha(ahora);
-        auditoriaClient.generarAuditoria(dto);
-        log.info("Auditoria generada");
-    }
-
     public void guardarRanking(Long idUsuario){
         List<EstadisticaResponseDTO> estadisticas = estadisticaClient.obtenerTodos();
+        UsuarioResponseDTO usuario = usuarioClient.buscarPorId(idUsuario);
         Ranking ranking = new Ranking();
         Long puntaje = 0L;
+
+
         for(EstadisticaResponseDTO estadistica: estadisticas){
             if(estadistica.getUsuarioId().equals(idUsuario)){
                 ranking.setIdUsuario(estadistica.getUsuarioId());
-                ranking.setNombre("Mish");
+                ranking.setNombre(usuario.getNombreUsuario());
                 if(estadistica.getMetrica().equalsIgnoreCase("Goles") || estadistica.getMetrica().equalsIgnoreCase("Kills")){
                     puntaje+=(estadistica.getValor()*5L);
                 }else if(estadistica.getMetrica().equalsIgnoreCase("Asistencias")){
@@ -90,4 +85,12 @@ public class RankingService {
                 .collect(Collectors.toList());
     }
 
+    public void generarAuditoria(String detalle){
+        AuditoriaRequestDTO dto = new AuditoriaRequestDTO();
+        LocalDate ahora = LocalDate.now();
+        dto.setDetalle(detalle);
+        dto.setFecha(ahora);
+        auditoriaClient.generarAuditoria(dto);
+        log.info("Auditoria generada");
+    }
 }

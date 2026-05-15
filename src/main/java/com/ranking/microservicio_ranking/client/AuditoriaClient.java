@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface AuditoriaClient {
 
     @PostMapping
-    public AuditoriaResponseDTO generarAuditoria(@RequestBody AuditoriaRequestDTO auditoria);
+    AuditoriaResponseDTO generarAuditoria(@RequestBody AuditoriaRequestDTO auditoria);
 
 
 }
