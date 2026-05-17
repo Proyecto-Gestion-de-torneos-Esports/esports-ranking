@@ -8,8 +8,11 @@ import com.ranking.microservicio_ranking.dto.EstadisticaResponseDTO;
 import com.ranking.microservicio_ranking.dto.RankingResponseDTO;
 import com.ranking.microservicio_ranking.dto.UsuarioResponseDTO;
 import com.ranking.microservicio_ranking.exception.RankingNotFoundException;
+import com.ranking.microservicio_ranking.exception.UsuarioNotFoundException;
 import com.ranking.microservicio_ranking.model.Ranking;
 import com.ranking.microservicio_ranking.repository.RankingRepository;
+import feign.FeignException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,20 +46,22 @@ public class RankingService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<RankingResponseDTO> buscarPorId(Long id){
+    public RankingResponseDTO buscarPorId(Long id){
         Optional<Ranking> ranking = rankingRepository.findById(id);
         if(ranking.isPresent()){
-            return ranking.map(this::mapToDTO);
+            log.info("Ranking encontrado con id {}", id);
+            return mapToDTO(ranking.orElseThrow());
         }
+        log.warn("Ranking con id {} no fue encontrado", id);
         throw new RankingNotFoundException("El ranking con id "+id+" no fue encontrado");
     }
 
+    @Transactional
     public void guardarRanking(Long idUsuario){
         List<EstadisticaResponseDTO> estadisticas = estadisticaClient.obtenerTodos();
-        UsuarioResponseDTO usuario = usuarioClient.buscarPorId(idUsuario);
+        UsuarioResponseDTO usuario = validarUsuarioExiste(idUsuario);
         Ranking ranking = new Ranking();
         Long puntaje = 0L;
-
 
         for(EstadisticaResponseDTO estadistica: estadisticas){
             if(estadistica.getUsuarioId().equals(idUsuario)){
@@ -85,6 +90,19 @@ public class RankingService {
                 .collect(Collectors.toList());
     }
 
+
+    public UsuarioResponseDTO validarUsuarioExiste(Long idUsuario){
+        try{
+            UsuarioResponseDTO usuario = usuarioClient.buscarPorId(idUsuario);
+            log.info("Usuario con id {} encontrado",idUsuario);
+            return usuario;
+        }catch (FeignException.NotFound e){
+            log.warn("Usuario con id {} no fue encontrado",idUsuario);
+            throw new UsuarioNotFoundException("El usuario con id "+idUsuario+" no fue encontrado");
+        }
+    }
+
+    @Transactional
     public void generarAuditoria(String detalle){
         AuditoriaRequestDTO dto = new AuditoriaRequestDTO();
         LocalDate ahora = LocalDate.now();

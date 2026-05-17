@@ -11,6 +11,15 @@ import java.util.HashMap;
 @RestControllerAdvice
 public class GlobalException {
 
+    @ExceptionHandler(UsuarioNotFoundException.class)
+    public ResponseEntity<?> manejoUsuarioNoEncontrado(UsuarioNotFoundException e){
+        HashMap<String, Object> error = new HashMap<>();
+        error.put("estado",404);
+        error.put("mensaje",e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
     @ExceptionHandler(RankingNotFoundException.class)
     public ResponseEntity<?> manejoNoEncontrado(RankingNotFoundException e){
         HashMap<String, Object> error = new HashMap<>();

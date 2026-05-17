@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/ranking")
@@ -21,7 +20,7 @@ public class RankingController {
     }
 
     @GetMapping("/{id}")
-    public Optional<RankingResponseDTO> buscarPorId(@PathVariable Long id){
+    public RankingResponseDTO buscarPorId(@PathVariable Long id){
         return rankingService.buscarPorId(id);
     }
 

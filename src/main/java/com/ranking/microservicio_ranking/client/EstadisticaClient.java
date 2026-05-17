@@ -6,10 +6,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@FeignClient(name = "microservicio-estadistica", url = "http://localhost:8085/api/estadistica")
+@FeignClient(name = "microservicio-estadistica", url = "http://localhost:8005/api/estadistica")
+//@FeignClient(name = "microservicio-estadistica", url = "http://localhost:8025/api/estadistica")
 public interface EstadisticaClient {
 
     @GetMapping()
-    public List<EstadisticaResponseDTO> obtenerTodos();
+    List<EstadisticaResponseDTO> obtenerTodos();
 
 }
